@@ -14,7 +14,7 @@ int main(int argc, char* argv[]) {
     double program_start, program_end;
     double parallel_start, parallel_end;
     double start, end;
-    int nflops = 0;
+    int *nflops;
 
     int chunk = atoi(argv[1]);
     int n_threads = atoi(argv[2]);
@@ -22,10 +22,11 @@ int main(int argc, char* argv[]) {
 
     program_start = omp_get_wtime();
     omp_set_num_threads(n_threads);
+    nflops = (int *)malloc(n_threads*sizeof(int));
 
     printf("Starting matrix-matrix multiplication example with %d threads, M= %d, K= %d, N= %d, chunk= %d\n", n_threads, M, K, N, chunk);
 
-    #pragma omp parallel private(id) firstprivate(nflops)
+    #pragma omp parallel private(id)
     {
         start = omp_get_wtime();
         id = omp_get_thread_num();
@@ -77,6 +78,7 @@ int main(int argc, char* argv[]) {
                     for(int k=0; k<K; k++) {
                         printf("Thread=%d did c[i,j] for i =%d , j =%d, and k = %d", id, i, j, k);
                         C[i][j] += A[i][k]*B[k][j];
+                        nflops[id]++;
                     }
                 }
             }
