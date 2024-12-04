@@ -27,7 +27,7 @@ int main(int argc, char* argv) {
             C[i][j] = 0;
 
             for(int k; k<K; k++) {
-                C[i][j] += A[i]
+                C[i][j] += A[i][k]*B[k][j];
             }
         }
     }  

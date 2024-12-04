@@ -4,8 +4,9 @@
 #define M 10
 #define K 10
 #define N 10
+#define LEVEL 3
 
-int main(int argc, char* argv) {
+int main(int argc, char* argv[]) {
     int A[M][K];
     int B[K][N];
     int C[M][N];
@@ -15,9 +16,9 @@ int main(int argc, char* argv) {
     double start, end;
     int nflops = 0;
 
-    int chunk = atoi(argv[0]);
-    int n_threads = atoi(argv[1]);
-    int level = atoi(argv[2]);
+    int chunk = atoi(argv[1]);
+    int n_threads = atoi(argv[2]);
+    //int level = atoi(argv[3]);
 
     program_start = omp_get_wtime();
     omp_set_num_threads(n_threads);
@@ -70,7 +71,7 @@ int main(int argc, char* argv) {
         printf("Thread %d is starting computations.\n", id);
         // calculate AxB = C
 
-        #pragma omp for schedule(static, chunk) collapse(level)
+        #pragma omp for schedule(static, chunk) collapse(LEVEL)
             for(int i=0; i<M; i++) {
                 for(int j=0; j<N; j++) {
                     for(int k=0; k<K; k++) {
