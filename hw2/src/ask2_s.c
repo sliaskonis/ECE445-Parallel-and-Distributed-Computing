@@ -29,8 +29,6 @@ int main(int argc, char* argv) {
     // calculate AxB = C
     for(int i=0; i<M; i++) {
         for(int j=0; j<N; j++) {
-            C[i][j] = 0;
-
             for(int k=0; k<K; k++) {
                 C[i][j] += A[i][k]*B[k][j];
             }
