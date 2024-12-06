@@ -80,7 +80,8 @@ int main(int argc, char* argv[]) {
                 for(int j=0; j<N; j++) {
                     for(int k=0; k<K; k++) {
                         printf("Thread=%d did c[i,j] for i =%d , j =%d, and k = %d", id, i, j, k);
-                        C[i][j] += A[i][k]*B[k][j];
+                        #pragma omp atomic
+                            C[i][j] += A[i][k]*B[k][j];
                         nflops[id]++;
                     }
                 }

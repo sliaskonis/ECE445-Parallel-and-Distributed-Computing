@@ -1,6 +1,6 @@
 CC = gcc # you may need to change this, depending on your OS
-CFLAGS = -fopenmp # you may need to change this, depending on your OS
-INCFLAGS =  -I/usr/local/opt/libomp/include/# you may need to change this, depending on your OS
+CFLAGS = -fopenmp -g # you may need to change this, depending on your OS
+INCFLAGS =  -I/usr/local/opt/libomp/include/ -lm# you may need to change this, depending on your OS
 LDFLAGS = -L/usr/local/opt/libomp/lib/ # you may need to change this, depending on your OS
 
 # directories

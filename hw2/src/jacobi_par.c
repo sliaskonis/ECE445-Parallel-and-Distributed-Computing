@@ -3,16 +3,20 @@
 #include <stdlib.h>
 #include <math.h>
 
+double maxnorm_res, maxnorm_calc;
+double *res, *x_k;
+
 // returns num of iterations
-int jacobi(double **A, double *b, int N, int maxIter, int tol, double *x) {
+int jacobi(double **A, double *b, int N, int maxIter, double tol, double *x) {
     int iter = 0;
     double sum;
-    double res[N];
-    double x_k[N];
-    double maxnorm_res, maxnorm_calc;
+    extern double *res, *x_k;
+    extern double maxnorm_res, maxnorm_calc;
+    int id = omp_get_thread_num();
     
     while(iter < maxIter) {
 
+        #pragma omp for private(sum) 
         for(int i=0; i<N; i++) {
             sum = A[i][i]*x[i];
             
@@ -20,57 +24,98 @@ int jacobi(double **A, double *b, int N, int maxIter, int tol, double *x) {
                 sum -= A[i][j]*x[j];
             }
             x_k[i] = (b[i] + sum)/A[i][i];
+            //printf("Thread %d, x_k[%d] = %.6f, A[i][i] = %.6f, b[i] = %.6f\n", id, i, x_k[i], A[i][i], b[i]);
         }
 
         // max norm of residual 
+        #pragma omp for
         for(int i=0; i<N; i++) {
             res[i] = b[i];
             for(int j=0; j<N; j++) {
                 res[i] -= A[i][j]*x_k[j];
             }
+            //printf("Thread %d, res[%d] = %.6f, b[i] = %.6f\n", id, i, res[i], b[i]);
         }
 
-        maxnorm_res = fabs(res[0]);
-        for(int i=1; i<N; i++) 
+        #pragma omp for reduction(max: maxnorm_res)
+        for(int i=0; i<N; i++) 
             if(maxnorm_res < fabs(res[i]))
                 maxnorm_res = fabs(res[i]);
         
-        maxnorm_calc = 0;
-        for(int i; i<N; i++) {
+
+        #pragma omp for reduction(max: maxnorm_calc)
+        for(int i=0; i<N; i++) {
             res[i] = fabs(x[i]-x_k[i]);
             if(maxnorm_calc < res[i])
                 maxnorm_calc = res[i];
         }
 
-        printf("iter = %d, residual = %.6f, difference %.6f", iter, maxnorm_res, maxnorm_calc);
+        #pragma omp single 
+        {
+            printf("x_k = [");
+            for(int i=0; i<N; i++) {
+                printf(" %.3f", x[i]);
+            }
+            printf("]\n");
+            printf("x_k+1 = [");
+            for(int i=0; i<N; i++) {
+                printf(" %.3f", x_k[i]);
+            }
+            printf("]\n");
+        }
 
-        for(int i; i<N; i++) {
+        #pragma omp for
+        for(int i=0; i<N; i++) {
             x[i] = x_k[i];
         }
 
-        iter++;
-        
+        #pragma omp single 
+            printf("iter = %d, residual = %.6f, difference %.6f\n", iter, maxnorm_res, maxnorm_calc);
+            
+        iter++; 
+            
+        #pragma omp barrier
+        if(tol >= maxnorm_res) 
+            break;
     }
+
+    return(iter);
 }
 
-int main(int argc, char* argv){
-    int N = atoi(argv[0]);
-    int maxIter = atoi(argv[1]);
-    int tol = atoi(argv[2]);
+int main(int argc, char* argv[]){
+    int N = atoi(argv[1]);
+    int maxIter = atoi(argv[2]);
+    double tol = atof(argv[3]);
 
-    int error, A[N][N], b[N];
+    
+    double error;
+    double **A = (double **)malloc(N*sizeof(double *));
+    for(int i=0; i<N; i++) {
+        A[i] = (double *)malloc(N*sizeof(double));
+    }
+    double *b = (double *)malloc(N*sizeof(double));
+    double *x = (double *)malloc(N*sizeof(double));
+    x_k = (double *)malloc(N*sizeof(double));
+    res = (double *)malloc(N*sizeof(double));
 
     for (int i=0; i<N; i++){
-        b[i]=0;
+        b[i] = 0;
+        x[i] = 1;
         for (int j=0; j<N; j++){
             if (i==j){
-                A[i][j]=2;
+                A[i][j] = 2;
             }
             else{
-                A[i][j]=-1;
+                A[i][j] = -1;
             }
         }
     }
+    b[N-1] = N+1;
+    
+    #pragma omp parallel default(shared) 
+    {
+        error = jacobi(A, b, N, maxIter, tol, x);
+    }
 
-    error = jacobi();
+    return 0;
 }
