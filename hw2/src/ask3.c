@@ -48,7 +48,7 @@ int main(int argc, char* argv[]){
     b[N-1] = N+1;
     
     init_jacobi(N);
-    printf("Starting Jacobi method with N = %d, max iterations = %d, tolerance = %.8f\n\n", N, maxIter, tol);
+    printf("Starting Jacobi method with N = %d, max iterations = %d, tolerance = %.8f, # of threads = %d\n\n", N, maxIter, tol, N_THREADS);
 
     start = omp_get_wtime();
     // Parallel computation
