@@ -1,7 +1,4 @@
-#include <stdio.h>
-#include <omp.h>
-#include <stdlib.h>
-#include <math.h>
+#include "../include/jacobi_par.h"
 
 double maxnorm_res, maxnorm_calc;
 double *res, *x_k;
@@ -23,6 +20,7 @@ double calc_max_norm(short int **A, short int *b, int N, double *x) {
         if(fabs(res[i]) > max_norm)
             max_norm = fabs(res[i]);
     }
+    return(max_norm);
 }
 
 // returns num of iterations
@@ -35,7 +33,11 @@ int jacobi(short int **A, short int *b, int N, int maxIter, double tol, double *
     
     while(iter < maxIter) {
 
+#ifndef _NESTED_
         #pragma omp for private(sum) 
+#else
+        #pragma omp parallel for num_threads(N_THREADS) private(sum)
+#endif
         for(int i=0; i<N; i++) {
             sum = A[i][i]*x[i];
             

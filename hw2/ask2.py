@@ -20,17 +20,17 @@ chunk3_array = []
 for thread_count in threads:
     print(thread_count)
     result1 = subprocess.run(
-        ["./ask2_p_A", str(thread_count), str(10)],
+        ["./bin/ask2_p_A", str(thread_count), str(10)],
         capture_output=True,
         text=True
     )
     result2 = subprocess.run(
-        ["./ask2_p_A", str(thread_count), str(20)],
+        ["./bin/ask2_p_A", str(thread_count), str(20)],
         capture_output=True,
         text=True
     )
     result3 = subprocess.run(
-        ["./ask2_p_A", str(thread_count), str(40)],
+        ["./bin/ask2_p_A", str(thread_count), str(40)],
         capture_output=True,
         text=True
     )

@@ -2,10 +2,7 @@
 #include <omp.h>
 #include <stdlib.h>
 #include <math.h>
-
-void init_jacobi(int N);
-double calc_max_norm(short int **A, short int *b, int N, double *x);
-int jacobi(short int **A, short int *b, int N, int maxIter, double tol, double *x);
+#include "../include/jacobi_par.h"
 
 int main(int argc, char* argv[]){
     int N, maxIter;
@@ -16,6 +13,9 @@ int main(int argc, char* argv[]){
     short int **A, *b;
     double *x;
     
+    omp_set_num_threads(N_THREADS);
+    omp_set_nested(1);
+
     // Get input 
     N = atoi(argv[1]);
     maxIter = atoi(argv[2]);
@@ -52,7 +52,7 @@ int main(int argc, char* argv[]){
 
     start = omp_get_wtime();
     // Parallel computation
-    #pragma omp parallel default(shared) 
+    #pragma omp parallel num_threads(N_THREADS) default(shared) 
     {
         iter = jacobi(A, b, N, maxIter, tol, x);
     }
