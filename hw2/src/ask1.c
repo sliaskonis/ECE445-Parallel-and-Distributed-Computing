@@ -1,12 +1,12 @@
 #include <stdio.h>
 #include <omp.h>
-// compile with :: gcc -g ask1.c -o ask1 -fopenmp
+#include "../include/colours.h"
 
-int main(int argc, char* argv) {
-    double start, end; 
-    int my_id; 
-    
-    
+int main(int argc, char* argv[]) {
+    double start, end;
+    int my_id;
+
+
     #pragma omp parallel private(start, end, my_id)
     {
         start = omp_get_wtime();
@@ -14,25 +14,25 @@ int main(int argc, char* argv) {
 
         #pragma omp master
         {
-            printf("HELLO. I am the Master thread.  I created all participating threads. \n");
+            printf(CYN"HELLO. I am the Master thread.  I created all participating threads. \n"RESET);
         }
 
         #pragma omp single
         {
             #ifdef _OPENMP
-                printf("OpenMP version: %d. Information provided by thread %d .\n", _OPENMP, my_id);
+                printf(GRN"OpenMP version: %d. Information provided by thread %d .\n"RESET, _OPENMP, my_id);
             #else
-                printf("No OpenMP support\n");
+                printf(RED"No OpenMP support\n"RESET);
             #endif
-            printf("Number of processors = %d\n", omp_get_num_procs());
-            printf("Number of threads = %d\n", omp_get_num_threads());
-            printf("Max threads = %d\n", omp_get_max_threads());
-            printf("In parallel? = %d\n", omp_in_parallel());
-            printf("Dynamic threads enabled? = %d\n", omp_get_dynamic());
-            printf("Nested parallelism levels supported = %d\n", omp_get_nested());
+            printf(BLU"Number of processors = %d\n"RESET, omp_get_num_procs());
+            printf(BLU"Number of threads = %d\n"RESET, omp_get_num_threads());
+            printf(BLU"Max threads = %d\n"RESET, omp_get_max_threads());
+            printf(BLU"In parallel? = %d\n"RESET, omp_in_parallel());
+            printf(BLU"Dynamic threads enabled? = %d\n"RESET, omp_get_dynamic());
+            printf(BLU"Nested parallelism levels supported = %d\n"RESET, omp_get_max_active_levels());
         }
-        
+
         end = omp_get_wtime();
-        printf("I am thread %d and worked for %.6f msec.\n", my_id, (end-start)*1000); 
+        printf(CYN"I am thread %d and worked for %.6f msec.\n"RESET, my_id, (end-start)*1000);
     }
 }
