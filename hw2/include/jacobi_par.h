@@ -4,7 +4,6 @@
 #include <math.h>
 
 // #define _NESTED_
-#define N_THREADS 32
 
 void init_jacobi(int N);
 

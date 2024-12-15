@@ -16,7 +16,7 @@ int jacobi(double **A, double *b, int N, int maxIter, double tol, double *x) {
 #ifndef _NESTED_
         #pragma omp for private(sum)
 #else
-        #pragma omp parallel for num_threads(N_THREADS) private(sum)
+        #pragma omp parallel for private(sum)
 #endif
         for(int i = 0; i < N; i++) {
             sum = A[i][i] * x[i];

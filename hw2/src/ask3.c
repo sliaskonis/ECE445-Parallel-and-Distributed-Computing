@@ -34,14 +34,13 @@ void init_system (double ***A, double **b, double **x, int N){
 int main(int argc, char* argv[]){
     int N, maxIter;
     int iter;
+    int N_THREADS;
     double start, end;
     double max_norm;
     double tol;
     double **A, *b;
     double *x, *x_star;
 
-    omp_set_num_threads(N_THREADS);
-    // omp_set_nested(1);
 #ifdef _NESTED_
     omp_set_max_active_levels(2);
 #endif
@@ -50,6 +49,9 @@ int main(int argc, char* argv[]){
     N = atoi(argv[1]);
     maxIter = atoi(argv[2]);
     tol = atof(argv[3]);
+    N_THREADS = atoi(argv[4]);
+
+    omp_set_num_threads(N_THREADS);
 
     // Initialize x_star
     x_star = (double *)malloc(N*sizeof(double));
