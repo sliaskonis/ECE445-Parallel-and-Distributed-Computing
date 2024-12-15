@@ -2,11 +2,11 @@
 #include <omp.h>
 // compile with :: gcc -g ask1.c -o ask1 -fopenmp
 
-int main(int argc, char* argv) {
-    double start, end; 
-    int my_id; 
-    
-    
+int main(int argc, char* argv[]) {
+    double start, end;
+    int my_id;
+
+
     #pragma omp parallel private(start, end, my_id)
     {
         start = omp_get_wtime();

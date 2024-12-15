@@ -1,7 +1,8 @@
-CC = gcc # you may need to change this, depending on your OS
-CFLAGS = -fopenmp -g # you may need to change this, depending on your OS
-INCFLAGS =  -I/usr/local/opt/libomp/include/# you may need to change this, depending on your OS
-LDFLAGS = -L/usr/local/opt/libomp/lib/ # you may need to change this, depending on your OS
+# Compiler and flags
+CC = clang # you may need to change this, depending on your OS
+CFLAGS = -fopenmp -O3 -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk/# you may need to change this, depending on your OS
+INCFLAGS =  -I/opt/homebrew/opt/libomp/include/# you may need to change this, depending on your OS
+LDFLAGS = -L/opt/homebrew/opt/libomp/lib # you may need to change this, depending on your OS
 
 # directories
 SRC_DIR = src
@@ -44,6 +45,6 @@ $(TARGET_3): $(SRC_DIR)/$(TARGET_3).c $(SRC_DIR)/jacobi_par.c $(BIN_DIR)
 $(BIN_DIR):
 	mkdir -p $(BIN_DIR)
 
-# Clean up executables 
+# Clean up executables
 clean:
-	$(RM) $(BIN_DIR)/*
+	$(RM) -r $(BIN_DIR)/*

@@ -3,11 +3,11 @@
 #include <stdlib.h>
 #include <math.h>
 
-#define _NESTED_
-#define N_THREADS 5
+// #define _NESTED_
+#define N_THREADS 32
 
 void init_jacobi(int N);
 
-double calc_max_norm(short int **A, short int *b, int N, double *x);
+double calc_error(double *x, double *x_star, int N);
 
-int jacobi(short int **A, short int *b, int N, int maxIter, double tol, double *x);
+int jacobi(double **A, double *b, int N, int maxIter, double tol, double *x);

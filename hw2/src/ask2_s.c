@@ -5,7 +5,7 @@
 #define N 10
 // compile with :: gcc -g ask1.c -o ask1 -fopenmp
 
-int main(int argc, char* argv) {
+int main(int argc, char* argv[]) {
     int A[M][K];
     int B[K][N];
     int C[M][N];
