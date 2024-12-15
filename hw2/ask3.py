@@ -1,5 +1,6 @@
 import subprocess
 import os
+import csv
 
 # Parameters for the C program
 N = 10000
@@ -14,9 +15,11 @@ output_dir = "outputs"
 if not os.path.exists(output_dir):
     os.makedirs(output_dir)
 
+# List to store results
+results = []
+
 # Loop through each thread count
 for threads in thread_counts:
-
     # Run the C program with the specific parameters and capture the output
     command = f'./bin/ask3 {N} {iter_} {tol} {threads}'
 
@@ -25,6 +28,28 @@ for threads in thread_counts:
 
     print(f"Running with {threads} threads...")
 
-    # Execute the command and save output to a file in the 'outputs' directory
-    with open(output_file, 'w') as f:
-        subprocess.run(command, shell=True, stdout=f, stderr=subprocess.PIPE)
+    # Execute the command and capture the output
+    result = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+    # Print both stdout and stderr for debugging
+    stdout_output = result.stdout.decode().strip()
+    stderr_output = result.stderr.decode().strip()
+
+    print(f"stdout: {stdout_output}")
+
+    # Try to parse the execution time (assuming it's in stdout)
+    try:
+        execution_time = float(stdout_output)  # Try parsing from stdout
+        results.append([threads, execution_time])  # Store the result
+    except ValueError:
+        print(f"Error: Couldn't parse the output for {threads} threads.")
+        # Optionally, handle stderr or perform further checks
+
+# Write the results to a CSV file
+csv_file = "execution_times.csv"
+with open(csv_file, mode='w', newline='') as file:
+    writer = csv.writer(file)
+    writer.writerow(["Threads", "Execution Time (seconds)"])  # Header
+    writer.writerows(results)  # Data rows
+
+print(f"Results saved to {csv_file}")

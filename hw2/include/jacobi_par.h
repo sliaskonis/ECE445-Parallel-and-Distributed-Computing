@@ -1,3 +1,6 @@
+#ifndef _JACOBI_PAR_H
+#define _JACOBI_PAR_H
+
 #include <stdio.h>
 #include <omp.h>
 #include <stdlib.h>
@@ -10,3 +13,5 @@ void init_jacobi(int N);
 double calc_error(double *x, double *x_star, int N);
 
 int jacobi(double **A, double *b, int N, int maxIter, double tol, double *x);
+
+#endif

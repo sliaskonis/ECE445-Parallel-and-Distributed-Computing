@@ -25,7 +25,6 @@ int jacobi(double **A, double *b, int N, int maxIter, double tol, double *x) {
                 sum -= A[i][j] * x[j];
             }
             x_k[i] = (b[i] + sum) / A[i][i];
-            // printf("Thread %d, x_k[%d] = %.6f, A[i][i] = %.6f, b[i] = %.6f\n", id, i, x_k[i], A[i][i], b[i]);
         }
 
         // Calculate residual
@@ -35,7 +34,6 @@ int jacobi(double **A, double *b, int N, int maxIter, double tol, double *x) {
             for(int j = 0; j < N; j++) {
                 res[i] -= A[i][j] * x_k[j];
             }
-            //printf("Thread %d, res[%d] = %.6f, b[i] = %.6f\n", id, i, res[i], b[i]);
         }
         #pragma omp single
             maxnorm_res = 0;
@@ -45,15 +43,6 @@ int jacobi(double **A, double *b, int N, int maxIter, double tol, double *x) {
         for(int i = 0; i < N; i++)
             if(maxnorm_res < fabs(res[i]))
                 maxnorm_res = fabs(res[i]);
-
-        /*#pragma omp single
-        {
-            printf("\nres = [");
-            for(int i=0; i<N; i++) {
-                printf(" %.2f", res[i]);
-            }
-            printf("]\nMax norm = %.6f\n", maxnorm_res);
-        }*/
 
         #pragma omp single
             maxnorm_calc = 0;
@@ -65,28 +54,11 @@ int jacobi(double **A, double *b, int N, int maxIter, double tol, double *x) {
                 maxnorm_calc = diff;
         }
 
-        /*#pragma omp single
-        {
-            printf("x_k = [");
-            for(int i=0; i<N; i++) {
-                printf(" %.2f", x[i]);
-            }
-            printf("]\n");
-            printf("x_k+1 = [");
-            for(int i=0; i<N; i++) {
-                printf(" %.2f", x_k[i]);
-            }
-            printf("]\n");
-        }*/
-
        // Update x with x_k
         #pragma omp for
         for(int i=0; i<N; i++) {
             x[i] = x_k[i];
         }
-
-        // #pragma omp single
-        //     printf("iter = %d, residual = %.6f, difference %.6f\n", iter, maxnorm_res, maxnorm_calc);
 
         iter++;
 

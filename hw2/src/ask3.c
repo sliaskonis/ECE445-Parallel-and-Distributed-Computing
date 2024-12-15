@@ -65,8 +65,6 @@ int main(int argc, char* argv[]){
     // Initialize Jacobi method
     init_jacobi(N);
 
-    printf("Starting Jacobi method with N = %d, max iterations = %d, tolerance = %.8f, # of threads = %d\n\n", N, maxIter, tol, N_THREADS);
-
     start = omp_get_wtime();
     #pragma omp parallel num_threads(N_THREADS) default(shared)
     {
@@ -77,7 +75,7 @@ int main(int argc, char* argv[]){
     // Calculate max norm
     max_norm = calc_error(x, x_star, N);
 
-    printf("Jacobi method done.\n\tError = %.6f\n\tTime = %.6f\n", max_norm, end-start);
+    printf("%f\n", end-start);
 
     return 0;
 }
