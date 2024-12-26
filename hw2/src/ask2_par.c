@@ -3,10 +3,32 @@
 #include <float.h>
 #include <omp.h>
 #include "../include/colours.h"
-#define M 100
+
+#ifndef LEVEL
+#define LEVEL 1 
+#endif
+
+#ifndef AQ
+#ifndef BQ
+#define M 5
+#define K 3
+#define N 4
+#define PRINT
+#endif
+#endif
+
+#ifdef AQ
+#define M 5
+#define K 3
+#define N 4
+#define PRINT
+#endif
+
+#ifdef BQ
+#define M 50
 #define K 10000
 #define N 20
-#define LEVEL 2
+#endif
 
 int main(int argc, char* argv[]) {
     int A[M][K];
@@ -45,7 +67,10 @@ int main(int argc, char* argv[]) {
             // init matrices
             #pragma omp section
             {
-                printf(BLU"Thread %d initiallizes array A!\n"RESET,id);
+                #ifdef PRINT
+                    printf(BLU"Thread %d initiallizes array A!\n"RESET,id);
+                #endif
+                
                 for(int i=0; i<M; i++) {
                     for(int j=0; j<K; j++) {
                         A[i][j] = i+j;
@@ -55,7 +80,10 @@ int main(int argc, char* argv[]) {
 
             #pragma omp section
             {
-                printf(BLU"Thread %d initiallizes array B!\n"RESET,id);
+                #ifdef PRINT
+                    printf(BLU"Thread %d initiallizes array B!\n"RESET,id);
+                #endif
+
                 for(int i=0; i<K; i++) {
                     for(int j=0; j<N; j++) {
                         B[i][j] = i*j;
@@ -65,7 +93,10 @@ int main(int argc, char* argv[]) {
 
             #pragma omp section
             {
-                printf(BLU"Thread %d initiallizes array C!\n"RESET,id);
+                #ifdef PRINT
+                    printf(BLU"Thread %d initiallizes array C!\n"RESET,id);
+                #endif
+
                 for(int i=0; i<M; i++) {
                     for(int j=0; j<N; j++) {
                         C[i][j] = 0;
@@ -77,14 +108,23 @@ int main(int argc, char* argv[]) {
         // Wait for all threads to finish initialization
         #pragma omp barrier
 
-        printf("Thread %d is starting computations.\n", id);
+        #ifdef PRINT
+            printf("Thread %d is starting computations.\n", id);
+        #endif
 
         #pragma omp for schedule(dynamic, chunk) collapse(LEVEL)
         for(int i=0; i<M; i++) {
             for(int j=0; j<N; j++) {
                 for(int k=0; k<K; k++) {
-                    //printf("Thread=%d did c[i,j] for i =%d , j =%d, and k = %d\n", id, i, j, k);
-                    C[i][j] += A[i][k]*B[k][j];
+                    #ifdef PRINT
+                        printf("Thread=%d did c[i,j] for i =%d , j =%d, and k = %d\n", id, i, j, k);
+                    #endif
+
+                    #if LEVEL==3
+                        #pragma omp atomic
+                        C[i][j] += A[i][k]*B[k][j];
+                    #endif
+
                     nflops[id]+=2;
                 }
             }
