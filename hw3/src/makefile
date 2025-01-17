@@ -19,7 +19,7 @@ ask1: ask1.c
 
 # Compile ask2.c
 ask2: ask2.c
-	$(CC) $(CFLAGS) -o $@ $<
+	$(CC) $(CFLAGS) -o $@ $< -lm
 
 # Compile ask3.c
 ask3: ask3.c
