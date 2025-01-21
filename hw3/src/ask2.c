@@ -15,20 +15,21 @@ int Broadcast(int id, int number, int max_id) {
         //     printf("partition=%d\n", partition);
         // }
         
-        if ((id < partition) && (id <= max_id)){
+        if ((id < partition) && (id <= max_id) && (id+partition <= max_id)){
             MPI_Send(&number, 1, MPI_INT, (id+partition), 0, MPI_COMM_WORLD);
-            //printf("SEND num%d ::: id=%d, to=%d [%d]\n",number, id, (id+partition), i);
-        }else if(id < 2*partition){
-            //printf("wait id%d from%d\n",id,id-partition);
+            //printf("%d)SEND num%d ::: id=%d, to=%d [%d]\n",i, number, id, (id+partition), partition);
+        }else if((id >= partition) && (id-partition <= max_id) && (id < 2*partition)){
+            //printf("wait id%d from%d\n", id, id-partition);
             MPI_Recv(&number, 1, MPI_INT, (id-partition), 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-            //printf("RECV num%d ::: id=%d, from=%d\n",number, id, (id-partition));
+            //printf("RECV num%d ::: id=%d, from=%d  [[%d]]\n",number, id, (id-partition), partition);
         }
         
-        // sleep(1);
-        // printf("%d\n", id);
-        // sleep(1);
+        //sleep(1);
+        //printf("%d\n", id);
+        //sleep(1);
+        //MPI_Barrier(MPI_COMM_WORLD);
     }
-    //MPI_Barrier(MPI_COMM_WORLD);
+    MPI_Barrier(MPI_COMM_WORLD);
     return number;
 }
 
@@ -64,15 +65,16 @@ int main(int argc, char **argv) {
         total_time += (end_time - start_time);
     }
     double average_time = total_time / 1000;
-    total_time = 0.0;
     number = 0;
     if (rank == 0) {
-        printf("Average time for MPI_Bcast with %d tasks: %f seconds\n", size, average_time);
+        printf("Average time for MPI_Bcast with %d tasks: %.8f seconds\n", size, average_time);
         number = 4;
     }
+    total_time = 0.0;
+
     MPI_Barrier(MPI_COMM_WORLD);
 
-    for (int i = 0; i < 1000; i++) {
+    for (int i = 0; i < 1; i++) {
         MPI_Barrier(MPI_COMM_WORLD); // synchronization point
         start_time = MPI_Wtime(); 
 
@@ -84,7 +86,7 @@ int main(int argc, char **argv) {
     printf("Node %d received number %d!!!!!!!!\n", rank, number);
     average_time = total_time / 1000;
     if (rank == 0) {
-        printf("Average time for Broadcast with %d tasks: %f seconds\n", size, average_time);
+        printf("Average time for Broadcast with %d tasks: %.8f seconds\n", size, average_time);
     }
 
     MPI_Finalize();
