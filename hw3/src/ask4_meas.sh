@@ -17,20 +17,20 @@ main() {
             elapsed_time=$(echo "$output" | grep -oP 'Elapsed time: \K[0-9]+\.[0-9]+')
             total_time=$(echo "$total_time + $elapsed_time" | bc)
         done
-        average_time="0$(echo "scale=13; $total_time / $iterations" | bc -l)"
-        average_time=$(printf "%13s" $average_time)
+        average_time="0$(echo "scale=8; $total_time / $iterations" | bc -l)"
+        average_time=$(printf "%8s" $average_time)
         echo "Average elapsed time: $average_time"
     else
         echo "Running measurements in parallel mode"
         total_time=0
         echo "Running measurements in parallel mode with $p processes"
         for ((i=1; i<=iterations; i++)); do
-            output=$(mpirun -np $p ask4_par $n )
+            output=$(mpirun --oversubscribe -np $p ask4_par $n )
             elapsed_time=$(echo "$output" | grep -oP 'Elapsed time: \K[0-9]+\.[0-9]+')
             total_time=$(echo "$total_time + $elapsed_time" | bc)
         done
-        average_time="0$(echo "scale=13; $total_time / $iterations" | bc -l)"
-        average_time=$(printf "%13s" $average_time)
+        average_time="0$(echo "scale=8; $total_time / $iterations" | bc -l)"
+        average_time=$(printf "%8s" $average_time)
         echo "Average elapsed time: $average_time"
     fi
 

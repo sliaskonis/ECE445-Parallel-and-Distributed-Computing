@@ -7,7 +7,7 @@
 int Broadcast(int id, int number, int max_id) {
     double size = log2((double)(max_id + 1));
     if(id==0) MPI_Send(&number, 1, MPI_INT, 1, 0, MPI_COMM_WORLD);
-    if(id==1) PMPI_Recv(&number, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    if(id==1) MPI_Recv(&number, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
     for(int i=1; i<size; i++){
         int partition = (float)(1<<i);
