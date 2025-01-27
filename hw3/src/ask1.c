@@ -4,7 +4,7 @@
 #include <time.h>
 #include "../include/colours.h"
 
-#define NUM_ITER 10000
+#define NUM_ITER 1000
 
 void measure_time(int rank, int tag, void *val, MPI_Datatype datatype, const char *datatype_str);
 
@@ -54,7 +54,7 @@ void measure_time(int rank, int tag, void *val, MPI_Datatype datatype, const cha
             MPI_Send(val, 1, datatype, 1, tag, MPI_COMM_WORLD);
             MPI_Recv(val, 1, datatype, 1, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
             end_time = MPI_Wtime();
-            total_time += (end_time - start_time) * 1000;
+            total_time += (end_time - start_time) * 1000000;
         } else if (rank == 1) {
             MPI_Recv(recv_val, 1, datatype, 0, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
             MPI_Send(recv_val, 1, datatype, 0, tag, MPI_COMM_WORLD);
@@ -62,7 +62,7 @@ void measure_time(int rank, int tag, void *val, MPI_Datatype datatype, const cha
     }
 
     if (rank == 0) {
-        printf(GRN "Average time for (datatype: %s) = %f ms\n" RESET, datatype_str, total_time / NUM_ITER);
+        printf(GRN "Average time for (datatype: %s) = %f μs\n" RESET, datatype_str, total_time / NUM_ITER);
     }
     free(recv_val);
 }
