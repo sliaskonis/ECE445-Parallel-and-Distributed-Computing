@@ -8,7 +8,7 @@ OBJ_DIR = obj
 BIN_DIR = bin
 
 # Compiler flags
-CFLAGS = -Wall -I$(SRC_DIR)
+CFLAGS = -I$(SRC_DIR)
 
 # Source files
 SRC = $(wildcard $(SRC_DIR)/*.c)
