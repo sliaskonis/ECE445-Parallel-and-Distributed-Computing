@@ -12,8 +12,7 @@ int custom_broadcast(int id, int number, int max_id) {
 
 	if (id == 0) {
 		for (int i = 0; i < max_id; i++) {
-			MPI_Send(&number, 1, MPI_INT, recv_id, 0, MPI_COMM_WORLD);
-			recv_id++;
+			MPI_Send(&number, 1, MPI_INT, recv_id++, 0, MPI_COMM_WORLD);
 		}
 	} else {
 		MPI_Recv(&number, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
