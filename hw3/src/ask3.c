@@ -2,23 +2,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void rowMVMult(int n, double *localA, double *localb, double *localy, MPI_Comm comm) {
+void rowMVMult(int n, double *local_A, double *local_b, double *local_y, int num_tasks, MPI_Comm comm) {
     int rank, size, local_n;
 
     MPI_Comm_rank(comm, &rank);
-    MPI_Comm_size(comm, &size);
 
-    local_n = n / size; // numbders of rows each process handles
+    local_n = n / num_tasks; // Numbders of rows each process handles
 
-    // calculate local y = A * b
+    // Calculate local y = A * b
     for (int i = 0; i < local_n; i++) {
-        localy[i] = 0.0;
+        local_y[i] = 0.0;
         for (int j = 0; j < n; j++) {
-            localy[i] += localA[i * n + j] * localb[j];
-            //printf("localy[%d]=%f\n",j,localy[i]);
+            local_y[i] += local_A[i * n + j] * local_b[j];
         }
     }
-
 }
 
 void printA(double* A, int n, int local_n){
@@ -31,16 +28,22 @@ void printA(double* A, int n, int local_n){
 }
 
 int main(int argc, char **argv) {
-    int rank, tasks, n = 4; 
-    double *A = NULL, *y = NULL, *b=NULL;
-    double *localA, *localb, *localy;
-    int local_n;
+    int rank, num_tasks, n;
+    double *A = NULL, *y = NULL, *b = NULL;
+    double *local_A, *local_y, total_time;
+    double start_time, end_time;
+
+    if (argc != 2) {
+        printf("Usage: %s <n>\n", argv[0]);
+        return -1;
+    }
+    n = atoi(argv[1]);
 
     MPI_Init(&argc, &argv);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &tasks);
+    MPI_Comm_size(MPI_COMM_WORLD, &num_tasks);
 
-    if (n % tasks != 0) {
+    if (n % num_tasks != 0) {
         if (rank == 0) {
             printf("Error: n must be divisible by the number of processes.\n");
         }
@@ -48,24 +51,29 @@ int main(int argc, char **argv) {
         return -1;
     }
 
-    local_n = n / tasks; // lines per process
-    //printf ("localn=%d, n=%d\n",local_n, n);
-    localA = (double *)malloc(local_n * n * sizeof(double));
-    localb = (double *)malloc(local_n * sizeof(double));
-    localy = (double *)malloc(local_n * sizeof(double));
-    if ((localb == NULL) || (localy == NULL) || (localA == NULL)) {
+    int local_n = n / num_tasks; // Number of rows each process will handle
+    double mul_time;
+
+    // Allocate memory for local A, b, y
+    local_A = (double *)malloc(local_n * n * sizeof(double));
+    local_y = (double *)malloc(local_n * sizeof(double));
+    b       = (double *)malloc(n       * sizeof(double));
+
+    if ((b == NULL) || (local_y == NULL) || (local_A == NULL)) {
         fprintf(stderr, "Memory allocation failed\n");
         MPI_Abort(MPI_COMM_WORLD, 1);
     }
-    // a) initialization of A and b by the master
+
+    // Data Initialization from master task
     if (rank == 0) {
-        A = (double *)malloc(n * n * sizeof(double));
-        b = (double *)malloc(n * sizeof(double));
-        y = (double *)malloc(n * sizeof(double));
+        A = (double *)malloc(sizeof(double) * n * n);
+        y = (double *)malloc(sizeof(double) * n);
+
         if ((A == NULL) || (y == NULL)) {
             fprintf(stderr, "Memory allocation failed\n");
             MPI_Abort(MPI_COMM_WORLD, 1);
         }
+
         for (int i = 0; i < n; i++) {
             b[i] = 10.0;
             for (int j = 0; j < n; j++) {
@@ -73,31 +81,48 @@ int main(int argc, char **argv) {
             }
         }
     }
-    // b) and c) scatter A to all processes && broadcast b to all processes
-    MPI_Scatter(A, local_n * n, MPI_DOUBLE, localA, local_n * n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-    MPI_Scatter(b, local_n, MPI_DOUBLE, localb, local_n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
-    // d) calculation of local y = A * b
-    rowMVMult(n, localA, localb, localy, MPI_COMM_WORLD);
+    // Send A and b to all processes
+    MPI_Scatter(A, local_n * n, MPI_DOUBLE, local_A, local_n * n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    MPI_Bcast(b, n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
-    // e) gather local y to the master
-    MPI_Gather(localy, local_n, MPI_DOUBLE, y, local_n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    // Each process calculates local y = A * b
+    start_time = MPI_Wtime();
+    rowMVMult(n, local_A, b, local_y, num_tasks, MPI_COMM_WORLD);
+    end_time = MPI_Wtime();
 
-    // f) print the resulting vector y
+    mul_time = end_time - start_time;
+
+    // Gather all local y's to the master process
+    MPI_Gather(local_y, local_n, MPI_DOUBLE, y, local_n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+
+    // Sum all the times to get the total time
+    MPI_Reduce(&mul_time, &total_time, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+
+    // Print the resulting vector y
     if (rank == 0) {
-        printf("Resulting vector y:\n");
-        for (int i = 0; i < n; i++) {
-            printf("%f ", y[i]);
+
+        // Print the resulting vector y (only for n < 10)
+        if (n < 10) {
+            printf("Resulting vector y:\n");
+            for (int i = 0; i < n; i++) {
+                printf("%f ", y[i]);
+            }
+            printf("\n");
         }
-        printf("\n");
+
+        printf("%f\n", total_time);
+
         free(A);
-        free(b);
         free(y);
     }
-    free(localA);
-    free(localb);
-    free(localy);
+
+    // Cleanup
+    free(b);
+    free(local_A);
+    free(local_y);
 
     MPI_Finalize();
+
     return 0;
 }
