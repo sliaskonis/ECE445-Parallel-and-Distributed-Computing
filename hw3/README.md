@@ -12,7 +12,7 @@ mpirun -np <number of processors> ./bin/ask3 <N>
 ```
 
 Where:
-- Numbers of processors: numbers of processors participating in the matrix-vector calculation. Use --oversubscribe flag if you want to use more nodes than supported by your system.
+- Numbers of processors: numbers of processors participating in the matrix-vector calculation. Use `--oversubscribe` flag if you want to use more nodes than supported by your system.
 - N: size of the NxN matrix
 
 Under the `scripts` directory there are also two scripts that can be used in order to obtain useful stats from the implemented algorithms. The `ask3.py` script can be executed as:
