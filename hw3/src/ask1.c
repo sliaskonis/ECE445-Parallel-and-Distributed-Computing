@@ -54,16 +54,7 @@ void measure_time(int rank, int tag, void *val, MPI_Datatype datatype, const cha
             MPI_Send(val, 1, datatype, 1, tag, MPI_COMM_WORLD);
             MPI_Recv(val, 1, datatype, 1, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
             end_time = MPI_Wtime();
-            if (i > 1) {
-                if ((end_time - start_time) * 1000000 > 100.0) {
-                    printf(YEL "Warning: Time for (datatype: %s) = %f μs in iter %d\n" RESET, datatype_str, (end_time - start_time) * 1000000, i);
-                }
-                // printf("Total time for (datatype: %s) = %f μs\n", datatype_str, (end_time - start_time) * 1000000);
-                total_time += (end_time - start_time) * 1000000;
-            }
-            // if (i < 3) {
-            //     printf("Total time for (datatype: %s) = %f μs\n", datatype_str, (end_time - start_time) * 1000000);
-            // }
+            total_time += (end_time - start_time) * 1000000;
         } else if (rank == 1) {
             MPI_Recv(recv_val, 1, datatype, 0, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
             MPI_Send(recv_val, 1, datatype, 0, tag, MPI_COMM_WORLD);
