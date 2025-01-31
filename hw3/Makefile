@@ -9,6 +9,9 @@ BIN_DIR = bin
 
 # Compiler flags
 CFLAGS = -I$(SRC_DIR)
+ifdef DEBUG
+    CFLAGS += -DDEBUG -g
+endif
 
 # Source files
 SRC = $(wildcard $(SRC_DIR)/*.c)
