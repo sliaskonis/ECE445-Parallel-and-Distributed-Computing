@@ -4,7 +4,7 @@
 #include <time.h>
 #include "../include/colours.h"
 
-#define NUM_ITER 1000
+#define NUM_ITER 100000
 
 void measure_time(int rank, int tag, void *val, MPI_Datatype datatype, const char *datatype_str);
 
@@ -30,10 +30,10 @@ int main(int argc, char **argv) {
      * Measure time for sending and receiving integers, floats and doubles
      */
     if (rank < 2) {
-        float fvalue = rand() / (float)RAND_MAX;
-        measure_time(rank, 1, &fvalue, MPI_FLOAT, "MPI_FLOAT");
         int ivalue = rand();
         measure_time(rank, 0, &ivalue, MPI_INT, "MPI_INT");
+        float fvalue = rand() / (float)RAND_MAX;
+        measure_time(rank, 1, &fvalue, MPI_FLOAT, "MPI_FLOAT");
         double dvalue = rand() / (double)RAND_MAX;
         measure_time(rank, 2, &dvalue, MPI_DOUBLE, "MPI_DOUBLE");
     }

@@ -36,12 +36,14 @@ int main(int argc, char **argv) {
     MPI_Comm_size(MPI_COMM_WORLD, &num_tasks);
     MPI_Get_processor_name(processor_name, &name_len);
 
+#ifndef DEBUG
     if (rank == 0) {
         printf(GRN "Processor: %s, Number of tasks = %d\n" RESET, processor_name, num_tasks);
         printf(GRN "Hello. This is the master node.\n" RESET);
     } else {
         printf(YEL "Hello. This is node %d.\n" RESET, rank);
     }
+#endif
 
     /**************** MPI Broadcast *****************/
     for (int i = 0; i < num_iters; i++) {
@@ -68,12 +70,19 @@ int main(int argc, char **argv) {
     }
 
     /**************** Print Final Results *****************/
+#ifndef DEBUG
     if (rank == 0) {
         printf(GRN "Average time for MPI_Bcast with %d tasks:        %f μs\n" RESET, num_tasks, mpi_time / 1000);
         printf(GRN "Average time for custom broadcast with %d tasks: %f μs\n" RESET, num_tasks, custom_time / 1000);
     }
 
 	printf(YEL "Node: %d, received number %d.\n" RESET, rank, number);
+#else
+    if (rank == 0) {
+        printf(GRN "%f\n" RESET, mpi_time / (num_iters - 1));
+        printf(GRN "%f\n" RESET, custom_time / (num_iters - 1));
+    }
+#endif
 
     MPI_Finalize();
     return 0;

@@ -16,7 +16,7 @@ array_sizes = [120, 240, 360, 480, 600, 1200, 1800, 2400, 3000]
 exec_path = "../bin/ask3"
 
 # Output CSV file
-output_dir = "../results"
+output_dir = "../results/ask3"
 output_file = os.path.join(output_dir, "execution_times.csv")
 
 # Ensure the 'results' directory exists
