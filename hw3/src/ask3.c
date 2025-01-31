@@ -52,7 +52,6 @@ int main(int argc, char **argv) {
     }
 
     int local_n = n / num_tasks; // Number of rows each process will handle
-    double mul_time;
 
     // Allocate memory for local A, b, y
     local_A = (double *)malloc(local_n * n * sizeof(double));
@@ -80,6 +79,9 @@ int main(int argc, char **argv) {
                 A[i * n + j] = (i + j) * 10.0;
             }
         }
+
+        // Start timer
+        start_time = MPI_Wtime();
     }
 
     // Send A and b to all processes
@@ -87,20 +89,18 @@ int main(int argc, char **argv) {
     MPI_Bcast(b, n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
     // Each process calculates local y = A * b
-    start_time = MPI_Wtime();
     rowMVMult(n, local_A, b, local_y, num_tasks, MPI_COMM_WORLD);
-    end_time = MPI_Wtime();
-
-    mul_time = end_time - start_time;
 
     // Gather all local y's to the master process
     MPI_Gather(local_y, local_n, MPI_DOUBLE, y, local_n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
-    // Sum all the times to get the total time
-    MPI_Reduce(&mul_time, &total_time, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
-
     // Print the resulting vector y
     if (rank == 0) {
+
+        // End timer
+        end_time = MPI_Wtime();
+
+        total_time = end_time - start_time;
 
         // Print the resulting vector y (only for n < 10)
         if (n < 10) {
