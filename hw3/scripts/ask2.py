@@ -2,6 +2,12 @@ import subprocess
 import sys
 import csv
 import os
+import re
+
+# Function to remove ANSI escape sequences
+def remove_ansi_codes(text):
+    ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
+    return ansi_escape.sub('', text)
 
 if len(sys.argv) != 2:
     print("Usage: python ask3.py <iterations>")
@@ -9,7 +15,7 @@ if len(sys.argv) != 2:
 
 # Define number of iterations each implementation will be executed
 iterations = int(sys.argv[1])
-num_tasks = [2, 3, 4, 5, 6, 8, 10, 12]
+num_tasks = [2, 4, 6, 8, 10, 12, 20]
 
 # Path to the executable
 exec_path = "../bin/ask2"
@@ -32,12 +38,18 @@ with open(output_file, mode='w', newline='') as file:
             try:
                 # Call the script with the specified arguments
                 result = subprocess.run(mpi_command, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-                print(result)
-                output = result.stdout.strip()
+
+                clean_output = remove_ansi_codes(result.stdout)
+
+                # Split the output into lines
+                output_lines = clean_output.splitlines()
+                float_values = [float(line) for line in output_lines]
+
+                first_value = float_values[0]
+                second_value = float_values[1]
 
                 # Extract execution time from the output (assuming it's in the format "Execution Time: <time>")
-                # You may need to adjust this based on the actual format
-                # writer.writerow([tasks, output])  # Write to CSV
+                writer.writerow([tasks, first_value, second_value])
 
             except subprocess.CalledProcessError as e:
                 print(f"Error details: {e}")
