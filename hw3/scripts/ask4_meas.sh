@@ -13,7 +13,7 @@ main() {
         total_time=0
         echo "Running measurements in serial mode"
         for ((i=1; i<=iterations; i++)); do
-            output=$(./ask4_ser $2)
+            output=$(./../bin/ask4_ser $2)
             elapsed_time=$(echo "$output" | grep -oP 'Elapsed time: \K[0-9]+\.[0-9]+')
             total_time=$(echo "$total_time + $elapsed_time" | bc)
         done
@@ -25,7 +25,7 @@ main() {
         total_time=0
         echo "Running measurements in parallel mode with $p processes"
         for ((i=1; i<=iterations; i++)); do
-            output=$(mpirun --oversubscribe -np $p ask4_par $n )
+            output=$(mpirun --oversubscribe -np $p ./../bin/ask4_par $n )
             elapsed_time=$(echo "$output" | grep -oP 'Elapsed time: \K[0-9]+\.[0-9]+')
             total_time=$(echo "$total_time + $elapsed_time" | bc)
         done
