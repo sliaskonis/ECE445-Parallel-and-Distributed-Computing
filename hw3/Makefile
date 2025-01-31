@@ -8,7 +8,7 @@ OBJ_DIR = obj
 BIN_DIR = bin
 
 # Compiler flags
-CFLAGS = -I$(SRC_DIR)
+CFLAGS = -I$(SRC_DIR) -O3
 ifdef DEBUG
     CFLAGS += -DDEBUG -g
 endif
