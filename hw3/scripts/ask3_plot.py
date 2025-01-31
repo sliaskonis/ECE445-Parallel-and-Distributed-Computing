@@ -20,17 +20,28 @@ unique_sizes = sorted(average_times['Array_Size'].unique())
 midpoint = len(unique_sizes) // 2
 
 # Split array sizes into two groups
-first_half_sizes = unique_sizes[:midpoint]
-second_half_sizes = unique_sizes[midpoint:]
+first_half_sizes = unique_sizes[:6]
+second_half_sizes = unique_sizes[6:]
 
-# Function to plot data
+# Function to plot data with a single legend entry for the red dot
 def plot_subset(subset_sizes, title):
     plt.figure(figsize=(10, 6))
+    min_marker_added = False  # Flag to ensure only one legend entry for the red dot
+
     for size in subset_sizes:
         subset = average_times[average_times['Array_Size'] == size]
         x = subset['Num_Processors'].to_numpy()
         y = subset['Execution_Time'].to_numpy()
         plt.plot(x, y, label=f"Size {size}")
+
+        # Find the lowest execution time and its corresponding Num_Processors
+        min_idx = y.argmin()
+        if not min_marker_added:
+            plt.scatter(x[min_idx], y[min_idx], color='red', marker='o', s=100, edgecolor='black', label="Min Value")
+            min_marker_added = True  # Ensure the legend entry is added only once
+        else:
+            plt.scatter(x[min_idx], y[min_idx], color='red', marker='o', s=100, edgecolor='black')
+
     plt.xlabel("Number of Processors")
     plt.ylabel("Average Execution Time (seconds)")
     plt.title(title)

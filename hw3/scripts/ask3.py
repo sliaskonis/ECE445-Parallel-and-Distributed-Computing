@@ -9,7 +9,7 @@ if len(sys.argv) != 2:
 
 # Define number of iterations each implementation will be executed
 iterations = int(sys.argv[1])
-num_tasks = [2, 3, 4, 5, 6, 8, 10, 12]
+num_tasks = [1, 2, 3, 4, 5, 6, 8, 10, 12]
 array_sizes = [120, 240, 360, 480, 600, 1200, 1800, 2400, 3000]
 
 # Path to the executable
