@@ -2,6 +2,26 @@
 
 ## Getting Started
 
+# Problem 1
+
+The file `ask1.c` contains the code for measuring the the communication overhead of MPI tasks.
+You can compile the program using the provided makefile and then execute as:
+
+```bash
+mpirun -np <number of processors> ./bin/ask1
+```
+
+# Problem 2
+
+The file `ask2.c` contains the implementation of a custom broadcast algorithm using MPI. The program will also execute and compare the algorithm to the MPI_Bcast function. You can compile
+the program using the provided makefile and then execute as:
+
+```bash
+mpirun -np <number of processors> ./bin/ask2 <numIters>
+```
+Where:
+- numIters: the number of iterations each broadcast function will be executed so that a total average time is measured.
+
 # Problem 3
 
 The file `ask3.c` contains an MPI implementation of a matrix-vector multiplication.
@@ -26,3 +46,5 @@ The script executes the algorithm for various combinations of tasks and array si
 ```bash
 python3 ask3_plot.py <csv file>
 ```
+
+# Problem 4
